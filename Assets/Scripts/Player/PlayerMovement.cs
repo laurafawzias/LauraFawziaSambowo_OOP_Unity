@@ -15,10 +15,13 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 stopFriction;
 
     private Rigidbody2D rb;
+    private Camera mainCamera;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        mainCamera = Camera.main;
+
         if (rb == null)
         {
             Debug.LogError("Rigidbody2D not found on player object");
@@ -64,13 +67,14 @@ public class PlayerMovement : MonoBehaviour
                 rb.velocity = Vector2.zero;
             }
         }
+
+        MoveBound();
     }
 
     private Vector2 GetFriction()
     {
         return (moveDirection != Vector2.zero) ? moveFriction : stopFriction;
     }
-
 
     public bool IsMoving()
     {
@@ -79,6 +83,14 @@ public class PlayerMovement : MonoBehaviour
 
     public void MoveBound()
     {
-        //method intentionally left empty
+    if (mainCamera == null) return;
+
+    Vector2 min = mainCamera.ViewportToWorldPoint(new Vector2(0, 0));
+    Vector2 max = mainCamera.ViewportToWorldPoint(new Vector2(1, 1));
+
+    transform.position = new Vector2(
+        Mathf.Clamp(transform.position.x, min.x + (transform.localScale.x / 2), max.x - (transform.localScale.x / 2)),
+        Mathf.Clamp(transform.position.y, min.y + (transform.localScale.y / 10), max.y - (transform.localScale.y / 1.5f))
+    );
     }
 }
